@@ -25,14 +25,18 @@ export class UsersService {
     return this.usersRepository.exists({ where: query });
   }
 
-  async setCurrentRefreshToken(refreshToken: string, userId: string) {
+  async setRefreshToken(refreshToken: string, userId: string) {
     const currentHashedRefreshToken = await bcrypt.hash(refreshToken, 10);
     await this.usersRepository.update(userId, {
       refreshToken: currentHashedRefreshToken,
     });
   }
 
-  public getByEmail(email: string) {
-    return this.usersRepository.findOne({ where: { email: email } });
+  async removeRefreshToken(userId: string) {
+    await this.usersRepository.update(userId, { refreshToken: null });
+  }
+
+  public async getByEmail(email: string) {
+    return await this.usersRepository.findOne({ where: { email: email } });
   }
 }

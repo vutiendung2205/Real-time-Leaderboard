@@ -1,10 +1,17 @@
-import { Body, Controller, Post, Request, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Request,
+  UseGuards,
+} from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
 import { AuthorizationService } from './authorization.service';
 import { CreateAuthorizationDto } from './dto/create-authorization.dto';
-import { LoginAuthorizationDto } from './dto/login-authorization.dto';
+import { JwtAuthorizationGuard } from './guards/jwt-authorization.guard';
+import { LocalAuthorizationGuard } from './guards/local-authorization.guard';
 import RequestWithUser from './interfaces/requestWithUser-interface';
-import { LocalAuthorizationGuard } from './localAuthorization.guard';
 
 @Controller('auth')
 export class AuthorizationController {
@@ -14,26 +21,20 @@ export class AuthorizationController {
   ) {}
 
   @UseGuards(LocalAuthorizationGuard)
-  @Post('login')
-  async loginUser(
-    @Body() loginUserDto: LoginAuthorizationDto,
-    @Request() request: RequestWithUser,
-  ) {
-    console.log('🚀 ~ AuthorizationController ~ request:', request);
-    console.log('🚀 ~ AuthorizationController ~ loginUserDto:', loginUserDto);
+  @Post('log-in')
+  async loginUser(@Request() request: RequestWithUser) {
     const { user } = request;
     const accessTokenCookie =
       this.authorizationService.getCookieWithAccessToken(user.id);
     const refreshTokenCookie =
       this.authorizationService.getCookieWithRefreshToken(user.id);
 
-    await this.usersService.setCurrentRefreshToken(user.refreshToken, user.id);
+    await this.usersService.setRefreshToken(user.refreshToken, user.id);
     request.res.setHeader('Set-Cookie', [
       accessTokenCookie,
       refreshTokenCookie.cookie,
     ]);
     return user;
-    // return this.authorizationService.login(loginUserDto);
   }
 
   @Post('register')
@@ -50,7 +51,7 @@ export class AuthorizationController {
     const refreshTokenCookie =
       this.authorizationService.getCookieWithRefreshToken(user.id);
 
-    await this.usersService.setCurrentRefreshToken(user.refreshToken, user.id);
+    await this.usersService.setRefreshToken(user.refreshToken, user.id);
     request.res.setHeader('Set-Cookie', [
       accessTokenCookie,
       refreshTokenCookie.cookie,
@@ -60,6 +61,14 @@ export class AuthorizationController {
     const { password, refreshToken: _, ...userWithoutSensitiveData } = user;
 
     return userWithoutSensitiveData;
+  }
+
+  @UseGuards(JwtAuthorizationGuard)
+  @Get('logout')
+  async logOut(@Request() request: RequestWithUser) {
+    console.log('🚀 ~ AuthorizationController ~ logOut ~ request:', request);
+    const { user } = request;
+    // await this.usersService.removeRefreshToken(user.id);
   }
 
   // @Post()

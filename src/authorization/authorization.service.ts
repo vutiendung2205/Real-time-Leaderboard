@@ -49,7 +49,7 @@ export class AuthorizationService {
         HttpStatus.BAD_REQUEST,
       );
     } else {
-      const hashPassword = await bcrypt.hash(
+      const hashPassword = await bcrypt.hashSync(
         createAuthorizationDto.password,
         10,
       );
@@ -60,7 +60,7 @@ export class AuthorizationService {
 
       // create refresh token for new user
       const refreshToken = this.getCookieWithRefreshToken(newUser.id);
-      const hashedRefreshToken = await bcrypt.hash(refreshToken.token, 10);
+      const hashedRefreshToken = await bcrypt.hashSync(refreshToken.token, 10);
 
       newUser.refreshToken = hashedRefreshToken;
 
@@ -108,13 +108,15 @@ export class AuthorizationService {
     };
   }
 
-  public async getAuthenticatedUser(email: string, hashedPassword: string) {
+  public async getAuthenticatedUser(email: string, password: string) {
     try {
       const user = await this.usersService.getByEmail(email);
-      const isPasswordMatching = await bcrypt.compare(
-        hashedPassword,
+
+      const isPasswordMatching = await bcrypt.compareSync(
+        password,
         user.password,
       );
+
       if (!isPasswordMatching) {
         throw new HttpException(
           'Wrong credentials provided',
