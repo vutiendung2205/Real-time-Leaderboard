@@ -39,4 +39,8 @@ export class UsersService {
   public async getByEmail(email: string) {
     return await this.usersRepository.findOne({ where: { email: email } });
   }
+
+  public async getById(id: string) {
+    return await this.findOne({ id: id });
+  }
 }

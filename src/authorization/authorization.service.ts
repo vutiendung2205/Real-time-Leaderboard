@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import * as bcrypt from 'bcrypt';
+import bcrypt from 'bcrypt';
 import { UserEntity } from 'src/users/entities/user.entity';
 import { UsersService } from 'src/users/users.service';
 import { CreateAuthorizationDto } from './dto/create-authorization.dto';
@@ -49,7 +49,7 @@ export class AuthorizationService {
         HttpStatus.BAD_REQUEST,
       );
     } else {
-      const hashPassword = await bcrypt.hashSync(
+      const hashPassword = await bcrypt.hash(
         createAuthorizationDto.password,
         10,
       );
@@ -60,7 +60,7 @@ export class AuthorizationService {
 
       // create refresh token for new user
       const refreshToken = this.getCookieWithRefreshToken(newUser.id);
-      const hashedRefreshToken = await bcrypt.hashSync(refreshToken.token, 10);
+      const hashedRefreshToken = await bcrypt.hash(refreshToken.token, 10);
 
       newUser.refreshToken = hashedRefreshToken;
 
@@ -88,7 +88,7 @@ export class AuthorizationService {
 
     const token = this.jwtService.sign(payload, {
       secret: this.configService.get('JWT_ACCESS_TOKEN_SECRET'),
-      expiresIn: `${this.configService.get('JWT_ACCESS_TOKEN_EXPIRATION_TIME')}s`,
+      expiresIn: `${this.configService.get('JWT_ACCESS_TOKEN_EXPIRATION_TIME')}d`,
     });
 
     return `Authentication=${token}; HttpOnly; Path=/; Max-Age=${this.configService.get('JWT_ACCESS_TOKEN_EXPIRATION_TIME')}`;
@@ -99,7 +99,7 @@ export class AuthorizationService {
 
     const token = this.jwtService.sign(payload, {
       secret: this.configService.get('JWT_REFRESH_TOKEN_SECRET'),
-      expiresIn: `${this.configService.get('JWT_REFRESH_TOKEN_EXPIRATION_TIME')}s`,
+      expiresIn: `${this.configService.get('JWT_REFRESH_TOKEN_EXPIRATION_TIME')}d`,
     });
     const cookie = `Refresh=${token}; HttpOnly; Path=/; Max-Age=${this.configService.get('JWT_REFRESH_TOKEN_EXPIRATION_TIME')}`;
     return {
@@ -111,10 +111,16 @@ export class AuthorizationService {
   public async getAuthenticatedUser(email: string, password: string) {
     try {
       const user = await this.usersService.getByEmail(email);
+      console.log(
+        '🚀 ~ AuthorizationService ~ getAuthenticatedUser ~ user:',
+        user,
+      );
+      console.log(21111, user.password);
+      const isPasswordMatching = await bcrypt.compare(password, user.password);
 
-      const isPasswordMatching = await bcrypt.compareSync(
-        password,
-        user.password,
+      console.log(
+        '🚀 ~ AuthorizationService ~ getAuthenticatedUser ~ isPasswordMatching:',
+        isPasswordMatching,
       );
 
       if (!isPasswordMatching) {
@@ -126,10 +132,21 @@ export class AuthorizationService {
       user.password = undefined;
       return user;
     } catch (error) {
+      console.log(
+        '🚀 ~ AuthorizationService ~ getAuthenticatedUser ~ error:',
+        error,
+      );
       throw new HttpException(
         'Wrong credentials provided',
         HttpStatus.BAD_REQUEST,
       );
     }
+  }
+
+  public getCookiesForLogOut() {
+    return [
+      'Authentication=; HttpOnly; Path=/; Max-Age=0',
+      'Refresh=; HttpOnly; Path=/; Max-Age=0',
+    ];
   }
 }

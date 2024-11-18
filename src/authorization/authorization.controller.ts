@@ -21,9 +21,10 @@ export class AuthorizationController {
   ) {}
 
   @UseGuards(LocalAuthorizationGuard)
-  @Post('log-in')
+  @Post('login')
   async loginUser(@Request() request: RequestWithUser) {
     const { user } = request;
+    console.log('🚀 ~ AuthorizationController ~ loginUser ~ user:', user);
     const accessTokenCookie =
       this.authorizationService.getCookieWithAccessToken(user.id);
     const refreshTokenCookie =
@@ -66,33 +67,19 @@ export class AuthorizationController {
   @UseGuards(JwtAuthorizationGuard)
   @Get('logout')
   async logOut(@Request() request: RequestWithUser) {
-    console.log('🚀 ~ AuthorizationController ~ logOut ~ request:', request);
     const { user } = request;
-    // await this.usersService.removeRefreshToken(user.id);
+    await this.usersService.removeRefreshToken(user.id);
+    request.res.setHeader(
+      'Set-Cookie',
+      this.authorizationService.getCookiesForLogOut(),
+    );
   }
 
-  // @Post()
-  // create(@Body() createAuthorizationDto: CreateAuthorizationDto) {
-  //   return this.authorizationService.create(createAuthorizationDto);
-  // }
-
-  // @Get()
-  // findAll() {
-  //   return this.authorizationService.findAll();
-  // }
-
-  // @Get(':id')
-  // findOne(@Param('id') id: string) {
-  //   return this.authorizationService.findOne(+id);
-  // }
-
-  // @Patch(':id')
-  // update(@Param('id') id: string, @Body() updateAuthorizationDto: UpdateAuthorizationDto) {
-  //   return this.authorizationService.update(+id, updateAuthorizationDto);
-  // }
-
-  // @Delete(':id')
-  // remove(@Param('id') id: string) {
-  //   return this.authorizationService.remove(+id);
-  // }
+  @UseGuards(JwtAuthorizationGuard)
+  @Get('me')
+  async getMe(@Request() request: RequestWithUser) {
+    const { user } = request;
+    console.log('🚀 ~ AuthorizationController ~ getMe ~ user:', user);
+    return this.usersService.getById(user.id);
+  }
 }

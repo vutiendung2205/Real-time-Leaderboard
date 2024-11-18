@@ -12,17 +12,13 @@ import { LocalStrategy } from './guards/local.strategy';
   imports: [
     PassportModule.register({ defaultStrategy: 'jwt' }),
     UsersModule,
-    // JwtModule.register({
-    //   secret: `${process.env.JWT_SECRET}`,
-    //   signOptions: { expiresIn: '7d' },
-    // }),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
         secret: configService.get('JWT_SECRET'),
         signOptions: {
-          expiresIn: `${configService.get('JWT_EXPIRATION_TIME')}s`,
+          expiresIn: `${configService.get('JWT_EXPIRATION_TIME')}h`,
         },
       }),
     }),
