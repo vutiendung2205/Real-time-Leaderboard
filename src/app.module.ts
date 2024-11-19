@@ -7,6 +7,8 @@ import { AppService } from './app.service';
 import { AuthorizationModule } from './authorization/authorization.module';
 import { UserEntity } from './users/entities/user.entity';
 import { UsersModule } from './users/users.module';
+import { GamesModule } from './games/games.module';
+import { ScoresModule } from './scores/scores.module';
 
 @Module({
   imports: [
@@ -37,6 +39,8 @@ import { UsersModule } from './users/users.module';
     }),
     UsersModule,
     AuthorizationModule,
+    GamesModule,
+    ScoresModule,
   ],
   controllers: [AppController],
   providers: [AppService],
