@@ -24,7 +24,7 @@ export class AuthorizationController {
   @Post('login')
   async loginUser(@Request() request: RequestWithUser) {
     const { user } = request;
-    console.log('🚀 ~ AuthorizationController ~ loginUser ~ user:', user);
+
     const accessTokenCookie =
       this.authorizationService.getCookieWithAccessToken(user.id);
     const refreshTokenCookie =
@@ -79,7 +79,6 @@ export class AuthorizationController {
   @Get('me')
   async getMe(@Request() request: RequestWithUser) {
     const { user } = request;
-    console.log('🚀 ~ AuthorizationController ~ getMe ~ user:', user);
     return this.usersService.getById(user.id);
   }
 }

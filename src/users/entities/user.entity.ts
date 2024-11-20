@@ -1,7 +1,10 @@
+import { GameEntity } from 'src/games/entities/game.entity';
+import { ScoreEntity } from 'src/scores/entities/score.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -25,6 +28,12 @@ export class UserEntity {
     nullable: true,
   })
   public refreshToken?: string;
+
+  @OneToMany(() => GameEntity, (game) => game.author)
+  authoredGames: GameEntity[];
+
+  @OneToMany(() => ScoreEntity, (score) => score.user)
+  scores: ScoreEntity[];
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;

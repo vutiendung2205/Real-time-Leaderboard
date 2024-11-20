@@ -5,10 +5,12 @@ import * as Joi from 'joi';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthorizationModule } from './authorization/authorization.module';
+import { GameEntity } from './games/entities/game.entity';
+import { GamesModule } from './games/games.module';
+import { ScoreEntity } from './scores/entities/score.entity';
+import { ScoresModule } from './scores/scores.module';
 import { UserEntity } from './users/entities/user.entity';
 import { UsersModule } from './users/users.module';
-import { GamesModule } from './games/games.module';
-import { ScoresModule } from './scores/scores.module';
 
 @Module({
   imports: [
@@ -33,7 +35,7 @@ import { ScoresModule } from './scores/scores.module';
       username: process.env.DATABASE_USERNAME,
       password: process.env.DATABASE_PASSWORD,
       database: process.env.DATABASE_DBNAME,
-      entities: [UserEntity],
+      entities: [UserEntity, GameEntity, ScoreEntity],
       synchronize: true,
       logging: ['error'],
     }),

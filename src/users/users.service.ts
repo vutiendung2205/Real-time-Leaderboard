@@ -17,8 +17,8 @@ export class UsersService {
     return await this.usersRepository.save(newUser);
   }
 
-  findOne(query: any): Promise<UserEntity> {
-    return this.usersRepository.findOne({ where: query });
+  async findOne(query: any): Promise<UserEntity> {
+    return await this.usersRepository.findOne({ where: query });
   }
 
   isUserExisted(query: any) {
@@ -37,7 +37,7 @@ export class UsersService {
   }
 
   public async getByEmail(email: string) {
-    return await this.usersRepository.findOne({ where: { email: email } });
+    return await this.findOne({ email: email });
   }
 
   public async getById(id: string) {

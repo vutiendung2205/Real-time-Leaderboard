@@ -111,17 +111,8 @@ export class AuthorizationService {
   public async getAuthenticatedUser(email: string, password: string) {
     try {
       const user = await this.usersService.getByEmail(email);
-      console.log(
-        '🚀 ~ AuthorizationService ~ getAuthenticatedUser ~ user:',
-        user,
-      );
-      console.log(21111, user.password);
-      const isPasswordMatching = await bcrypt.compare(password, user.password);
 
-      console.log(
-        '🚀 ~ AuthorizationService ~ getAuthenticatedUser ~ isPasswordMatching:',
-        isPasswordMatching,
-      );
+      const isPasswordMatching = await bcrypt.compare(password, user.password);
 
       if (!isPasswordMatching) {
         throw new HttpException(
@@ -132,10 +123,6 @@ export class AuthorizationService {
       user.password = undefined;
       return user;
     } catch (error) {
-      console.log(
-        '🚀 ~ AuthorizationService ~ getAuthenticatedUser ~ error:',
-        error,
-      );
       throw new HttpException(
         'Wrong credentials provided',
         HttpStatus.BAD_REQUEST,

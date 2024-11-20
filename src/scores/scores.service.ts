@@ -1,11 +1,20 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { CreateScoreDto } from './dto/create-score.dto';
 import { UpdateScoreDto } from './dto/update-score.dto';
+import { ScoreEntity } from './entities/score.entity';
 
 @Injectable()
 export class ScoresService {
-  create(createScoreDto: CreateScoreDto) {
-    return 'This action adds a new score';
+  constructor(
+    @InjectRepository(ScoreEntity)
+    private readonly scoresRepository: Repository<ScoreEntity>,
+  ) {}
+
+  async create(createScoreDto: CreateScoreDto) {
+    const newScore = await this.scoresRepository.create(createScoreDto);
+    return this.scoresRepository.save(newScore);
   }
 
   findAll() {
