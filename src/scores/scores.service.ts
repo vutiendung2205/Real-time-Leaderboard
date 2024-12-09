@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateScoreDto } from './dto/create-score.dto';
-import { UpdateScoreDto } from './dto/update-score.dto';
 import { ScoreEntity } from './entities/score.entity';
 
 @Injectable()
@@ -13,23 +12,39 @@ export class ScoresService {
   ) {}
 
   async create(createScoreDto: CreateScoreDto) {
-    const newScore = await this.scoresRepository.create(createScoreDto);
-    return this.scoresRepository.save(newScore);
+    const recordScore = await this.scoresRepository.findOne({
+      where: {
+        game: createScoreDto.gameId,
+        user: createScoreDto.user,
+      },
+    });
+    if (!recordScore) {
+      const newScore = await this.scoresRepository.create(createScoreDto);
+      return this.scoresRepository.save(newScore);
+    } else {
+      if (recordScore.points < createScoreDto.point) {
+        // update new point
+        return this.update(createScoreDto);
+      }
+    }
   }
 
-  findAll() {
-    return `This action returns all scores`;
+  async update(createScoreDto: CreateScoreDto) {
+    return await this.scoresRepository.update(
+      { game: createScoreDto.gameId, user: createScoreDto.user },
+      { points: createScoreDto.point },
+    );
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} score`;
-  }
+  // findAll() {
+  //   return `This action returns all scores`;
+  // }
 
-  update(id: number, updateScoreDto: UpdateScoreDto) {
-    return `This action updates a #${id} score`;
-  }
+  // findOne(id: number) {
+  //   return `This action returns a #${id} score`;
+  // }
 
-  remove(id: number) {
-    return `This action removes a #${id} score`;
-  }
+  // remove(id: number) {
+  //   return `This action removes a #${id} score`;
+  // }
 }

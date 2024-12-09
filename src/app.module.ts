@@ -11,6 +11,7 @@ import { ScoreEntity } from './scores/entities/score.entity';
 import { ScoresModule } from './scores/scores.module';
 import { UserEntity } from './users/entities/user.entity';
 import { UsersModule } from './users/users.module';
+import { EventsModule } from './events/events.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { UsersModule } from './users/users.module';
     AuthorizationModule,
     GamesModule,
     ScoresModule,
+    EventsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

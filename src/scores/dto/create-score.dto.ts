@@ -4,11 +4,11 @@ import { IsNumber, IsOptional, IsString } from 'class-validator';
 export class CreateScoreDto {
   @ApiProperty()
   @IsString()
-  game: string;
+  gameId: string;
 
   @ApiProperty()
   @IsNumber()
-  score: number;
+  point: number;
 
   @ApiProperty()
   @IsOptional()
