@@ -1,34 +1,40 @@
-import { WebSocketGateway, SubscribeMessage, MessageBody } from '@nestjs/websockets';
+import { OnModuleInit } from '@nestjs/common';
+import {
+  ConnectedSocket,
+  MessageBody,
+  SubscribeMessage,
+  WebSocketGateway,
+  WebSocketServer,
+} from '@nestjs/websockets';
+import { Server } from 'socket.io';
 import { EventsService } from './events.service';
-import { CreateEventDto } from './dto/create-event.dto';
-import { UpdateEventDto } from './dto/update-event.dto';
 
 @WebSocketGateway()
-export class EventsGateway {
+export class EventsGateway implements OnModuleInit {
   constructor(private readonly eventsService: EventsService) {}
 
-  @SubscribeMessage('createEvent')
-  create(@MessageBody() createEventDto: CreateEventDto) {
-    return this.eventsService.create(createEventDto);
+  @WebSocketServer()
+  server: Server;
+
+  onModuleInit() {
+    this.server.on('connection', (socket) => {
+      console.log('connected! ', socket.id);
+    });
   }
 
-  @SubscribeMessage('findAllEvents')
-  findAll() {
-    return this.eventsService.findAll();
+  @SubscribeMessage('getHighScores')
+  async getHighScores(@ConnectedSocket() client: any) {
+    const highestScores = await this.eventsService.getHighScores();
+
+    client.emit('getHighScores', highestScores);
   }
 
-  @SubscribeMessage('findOneEvent')
-  findOne(@MessageBody() id: number) {
-    return this.eventsService.findOne(id);
-  }
-
-  @SubscribeMessage('updateEvent')
-  update(@MessageBody() updateEventDto: UpdateEventDto) {
-    return this.eventsService.update(updateEventDto.id, updateEventDto);
-  }
-
-  @SubscribeMessage('removeEvent')
-  remove(@MessageBody() id: number) {
-    return this.eventsService.remove(id);
+  @SubscribeMessage('getHightScoresGame')
+  async getHighScoresGame(
+    @ConnectedSocket() client: any,
+    @MessageBody() gameId: string,
+  ) {
+    const highScoresGame = await this.eventsService.getHighScoresGame(gameId);
+    client.emit('getHightScoresGame', highScoresGame);
   }
 }

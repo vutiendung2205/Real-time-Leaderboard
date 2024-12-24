@@ -1,26 +1,38 @@
 import { Injectable } from '@nestjs/common';
-import { CreateEventDto } from './dto/create-event.dto';
-import { UpdateEventDto } from './dto/update-event.dto';
+import { GamesService } from 'src/games/games.service';
+import { ScoresService } from 'src/scores/scores.service';
 
 @Injectable()
 export class EventsService {
-  create(createEventDto: CreateEventDto) {
-    return 'This action adds a new event';
+  constructor(
+    private readonly gamesServices: GamesService,
+    private readonly scoreService: ScoresService,
+  ) {}
+
+  async getHighScores() {
+    const games = await this.gamesServices.findAll();
+
+    let highestScores = [];
+
+    for (const game of games) {
+      const highestScore = await this.scoreService.highestScore(game.id);
+
+      if (highestScore) {
+        highestScores = [
+          ...highestScores,
+          {
+            ...game,
+            highest: highestScore,
+          },
+        ];
+      }
+    }
+
+    return highestScores;
   }
 
-  findAll() {
-    return `This action returns all events`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} event`;
-  }
-
-  update(id: number, updateEventDto: UpdateEventDto) {
-    return `This action updates a #${id} event`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} event`;
+  async getHighScoresGame(gameId: string) {
+    const highestScore = await this.scoreService.highestScore(gameId);
+    return highestScore;
   }
 }

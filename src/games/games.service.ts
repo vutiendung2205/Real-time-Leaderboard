@@ -29,4 +29,8 @@ export class GamesService {
       author: { id: authorId, email },
     };
   }
+
+  async findAll() {
+    return await this.gamesRepository.find();
+  }
 }

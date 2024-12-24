@@ -36,15 +36,17 @@ export class ScoresService {
     );
   }
 
-  // findAll() {
-  //   return `This action returns all scores`;
-  // }
+  async highestScore(gameId: string) {
+    try {
+      const result = await this.scoresRepository
+        .createQueryBuilder('score')
+        .select('MAX(score.points)', 'maxScore')
+        .where('score.game = :gameId', { gameId: gameId })
+        .getRawOne();
 
-  // findOne(id: number) {
-  //   return `This action returns a #${id} score`;
-  // }
-
-  // remove(id: number) {
-  //   return `This action removes a #${id} score`;
-  // }
+      return result.maxScore || 0;
+    } catch (error) {
+      throw new Error('Failed to fetch the highest score');
+    }
+  }
 }
